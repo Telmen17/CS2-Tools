@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CS2 CT Loadout Planner - HUD</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .my-planner {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(circle at top, #0b1020, #050713 70%, #010109 100%);
+            color: #cfd8dc;
+            max-width: 1000px;
+            margin: auto;
+            padding: 10px;
+        }
+
+        .my-planner h1 {
+            text-align: center;
+            color: white;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        .my-planner .planner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .my-planner .categories {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            max-width: 1000px;
+        }
+
+        .my-planner .category {
+            flex: 1;
+            background: rgba(15, 20, 35, 0.6);
+            border-radius: 8px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(79,195,247,0.2);
+            box-shadow: 0 0 6px rgba(79,195,247,0.12);
+        }
+
+        .my-planner .category h2 {
+            text-align: center;
+            color: whitesmoke;
+            font-size: 1.1em;
+            border-bottom: 1px solid rgba(79,195,247,0.25);
+            padding-bottom: 4px;
+        }
+
+        .my-planner .item-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(10, 15, 30, 0.4);
+            border: 1px solid rgba(79,195,247,0.2);
+            padding: 6px;
+            border-radius: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .my-planner .item-card:hover {
+            border-color: #4fc3f7;
+            box-shadow: 0 0 8px rgba(79,195,247,0.3);
+            transform: scale(1.01);
+        }
+
+        .my-planner .item-card img {
+            width: 40px;
+            margin-right: 6px;
+            filter: drop-shadow(0 0 3px rgba(79,195,247,0.3));
+        }
+
+        .my-planner .item-info {
+            flex: 1;
+        }
+
+        .my-planner .item-info h3 {
+            margin: 0;
+            font-size: 0.85em;
+            color: whitesmoke;
+        }
+
+        .my-planner .item-info p {
+            margin: 1px 0 0;
+            font-size: 0.7em;
+            color: whitesmoke;
+        }
+
+        .my-planner .controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .my-planner .controls button {
+            width: 24px;
+            height: 24px;
+            border: none;
+            border-radius: 50%;
+            font-size: 14px;
+            cursor: pointer;
+            background: rgba(79,195,247,0.15);
+            color: #4fc3f7;
+            box-shadow: 0 0 3px rgba(79,195,247,0.2);
+            transition: 0.2s;
+        }
+
+        .my-planner .controls button:hover {
+            background: #4fc3f7;
+            color: #0a0c14;
+            box-shadow: 0 0 6px rgba(79,195,247,0.4);
+        }
+
+        .my-planner .controls span {
+            min-width: 20px;
+            text-align: center;
+            font-weight: bold;
+            color: whitesmoke;
+        }
+
+        .my-planner #totalCost {
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #00ffc3;
+            background: rgba(0, 255, 195, 0.12);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid #00ffc3;
+            width: fit-content;
+        }
+    </style>
+
+
+
+</head>
+<body>
+    <div class="my-planner">
+        <h1>CS2 Buy Menu Planner</h1>
+
+        <div class="planner">
+            <div class="categories">
+
+                <!-- Equipment -->
+                <div class="category">
+                    <h2>Equipment</h2>
+                    <div class="item-card" data-price="650">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/kevlar.webp" alt="Kevlar">
+                        <div class="item-info">
+                            <h3>Kevlar</h3>
+                            <p>$650</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="1000">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/helmet_kevlar.webp" alt="Helmet">
+                        <div class="item-info">
+                            <h3>Kevlar + Helmet</h3>
+                            <p>$1000</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="200">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/Zeus_x27.webp" alt="Zeus x27">
+                        <div class="item-info">
+                            <h3>Zeus x27</h3>
+                            <p>$200</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="400">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/Defuserhud_csgo.webp" alt="Defuse Kit">
+                        <div class="item-info">
+                            <h3>Defuse Kit</h3>
+                            <p>$400</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pistols -->
+                <div class="category">
+                    <h2>Pistols</h2>
+                    <div class="item-card" data-price="200">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/usp-s.png" alt="USP-S">
+                        <div class="item-info">
+                            <h3>USP-S</h3>
+                            <p>$200</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="200">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/glock-18.png" alt="Glock-18">
+                        <div class="item-info">
+                            <h3>Glock-18</h3>
+                            <p>$200</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="300">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/p2000.png" alt="P2000">
+                        <div class="item-info">
+                            <h3>P2000</h3>
+                            <p>$300</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="300">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/dual-berretas.png" alt="Dual Berettas">
+                        <div class="item-info">
+                            <h3>Dual Berettas</h3>
+                            <p>$300</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="300">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/p250-exeter-250.png" alt="P250">
+                        <div class="item-info">
+                            <h3>P250</h3>
+                            <p>$300</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="500">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/five-seven.png" alt="Five-SeveN">
+                        <div class="item-info">
+                            <h3>Five-SeveN</h3>
+                            <p>$500</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="500">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/cz75.png" alt="CZ75-Auto">
+                        <div class="item-info">
+                            <h3>CZ75-Auto</h3>
+                            <p>$500</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="500">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/tec-9.png" alt="Tec-9">
+                        <div class="item-info">
+                            <h3>Tec-9</h3>
+                            <p>$500</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="600">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/R8_Revolver.webp" alt="R8 Revolver">
+                        <div class="item-info">
+                            <h3>R8 Revolver</h3>
+                            <p>$600</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="700">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/desert-eagle.png" alt="Desert Eagle">
+                        <div class="item-info">
+                            <h3>Desert Eagle</h3>
+                            <p>$700</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mid-Tier -->
+                <div class="category">
+                    <h2>Mid-Tier</h2>
+
+                    <div class="item-card" data-price="1050">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/MAC-10.webp" alt="MAC-10">
+                        <div class="item-info">
+                            <h3>MAC-10</h3>
+                            <p>$1050</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="1500">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/MP5-SD.webp" alt="MP5-SD">
+                        <div class="item-info">
+                            <h3>MP5-SD</h3>
+                            <p>$1500</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="1500">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/MP7.webp" alt="MP7">
+                        <div class="item-info">
+                            <h3>MP7</h3>
+                            <p>$1500</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="1250">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/MP9.webp" alt="MP9">
+                        <div class="item-info">
+                            <h3>MP9</h3>
+                            <p>$1250</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="1400">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/PP-Bizon.webp" alt="PP-Bizon">
+                        <div class="item-info">
+                            <h3>PP-Bizon</h3>
+                            <p>$1400</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="2350">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/P90.webp" alt="P90">
+                        <div class="item-info">
+                            <h3>P90</h3>
+                            <p>$2350</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="1200">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/usp-s.png" alt="UMP-45">
+                        <div class="item-info">
+                            <h3>UMP-45</h3>
+                            <p>$1200</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="1300">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/MAG-7.webp" alt="MAG-7">
+                        <div class="item-info">
+                            <h3>MAG-7</h3>
+                            <p>$1300</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="1050">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/Nova.webp" alt="Nova">
+                        <div class="item-info">
+                            <h3>Nova</h3>
+                            <p>$1050</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="1100">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/Sawed-Off.webp" alt="Sawed-Off">
+                        <div class="item-info">
+                            <h3>Sawed-Off</h3>
+                            <p>$1100</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="2000">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/XM1014.webp" alt="XM1014">
+                        <div class="item-info">
+                            <h3>XM1014</h3>
+                            <p>$2000</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="5200">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/M249.webp" alt="M249">
+                        <div class="item-info">
+                            <h3>M249</h3>
+                            <p>$5200</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="1700">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/Negev.webp" alt="Negev">
+                        <div class="item-info">
+                            <h3>Negev</h3>
+                            <p>$1700</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Rifles -->
+                <div class="category">
+                    <h2>Rifles</h2>
+
+                    <div class="item-card" data-price="1700">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/SSG_08.webp" alt="SSG 08">
+                        <div class="item-info">
+                            <h3>SSG 08</h3>
+                            <p>$1700</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="1800">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/Galil_AR.webp" alt="Galil-AR">
+                        <div class="item-info">
+                            <h3>Galil-AR</h3>
+                            <p>$1800</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="1950">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/FAMAS.webp" alt="FAMAS">
+                        <div class="item-info">
+                            <h3>FAMAS</h3>
+                            <p>$1950</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="2700">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/AK-47.webp" alt="AK-47">
+                        <div class="item-info">
+                            <h3>AK-47</h3>
+                            <p>$2700</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="2900">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/M4A4.webp" alt="M4A4">
+                        <div class="item-info">
+                            <h3>M4A4</h3>
+                            <p>$2900</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="2900">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/M4A1-S.webp" alt="M4A1-S">
+                        <div class="item-info">
+                            <h3>M4A1-S</h3>
+                            <p>$2900</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="3000">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/SG_553.webp" alt="SG 553">
+                        <div class="item-info">
+                            <h3>SG 553</h3>
+                            <p>$3000</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="3300">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/AUG.webp" alt="AUG">
+                        <div class="item-info">
+                            <h3>AUG</h3>
+                            <p>$3300</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="4750">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/AWP.webp" alt="AWP">
+                        <div class="item-info">
+                            <h3>AWP</h3>
+                            <p>$4750</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="5000">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/SCAR-20.webp" alt="SCAR-20">
+                        <div class="item-info">
+                            <h3>SCAR-20</h3>
+                            <p>$5000</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="5000">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/G3SG1.webp" alt="G3SG1">
+                        <div class="item-info">
+                            <h3>G3SG1</h3>
+                            <p>$5000</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Grenades -->
+                <div class="category">
+                    <h2>Grenades</h2>
+
+                    <div class="item-card" data-price="200">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/Flashbang.webp" alt="Flashbang">
+                        <div class="item-info">
+                            <h3>Flashbang</h3>
+                            <p>$200</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="300">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/Smokegrenade.webp" alt="Smoke Grenade">
+                        <div class="item-info">
+                            <h3>Smoke Grenade</h3>
+                            <p>$300</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="300">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/Hegrenade.webp" alt="HE Grenade">
+                        <div class="item-info">
+                            <h3>HE Grenade</h3>
+                            <p>$300</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="400">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/Molotov.webp" alt="Molotov">
+                        <div class="item-info">
+                            <h3>Molotov</h3>
+                            <p>$400</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="600">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/Incgrenade.webp" alt="Incendiary Grenade">
+                        <div class="item-info">
+                            <h3>Incendiary Grenade</h3>
+                            <p>$600</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-price="50">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/Decoy.webp" alt="Decoy Grenade">
+                        <div class="item-info">
+                            <h3>Decoy Grenade</h3>
+                            <p>$50</p>
+                        </div>
+                        <div class="controls">
+                            <button class="minus">-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus">+</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="totalCost">Total Cost: $0</div>
+        </div>
+
+        <script>
+        const itemCards = document.querySelectorAll('.item-card');
+        const totalCostDisplay = document.getElementById('totalCost');
+
+        // Function to update total cost and highlight items
+        function updateTotalAndHighlight() {
+            let total = 0;
+
+            itemCards.forEach(card => {
+                const price = parseInt(card.dataset.price);
+                const quantitySpan = card.querySelector('.quantity');
+                const quantity = parseInt(quantitySpan.textContent);
+
+                // Update total
+                total += price * quantity;
+
+                // Add or remove highlight
+                if (quantity > 0) {
+                    card.classList.add('highlight');
+                } else {
+                    card.classList.remove('highlight');
+                }
+            });
+
+            totalCostDisplay.textContent = "Total Cost: $" + total;
+        }
+
+        // Attach plus/minus buttons
+        itemCards.forEach(card => {
+            const plusBtn = card.querySelector('.plus');
+            const minusBtn = card.querySelector('.minus');
+            const quantitySpan = card.querySelector('.quantity');
+
+            plusBtn.addEventListener('click', () => {
+                quantitySpan.textContent = parseInt(quantitySpan.textContent) + 1;
+                updateTotalAndHighlight();
+            });
+
+            minusBtn.addEventListener('click', () => {
+                let qty = parseInt(quantitySpan.textContent);
+                if (qty > 0) quantitySpan.textContent = qty - 1;
+                updateTotalAndHighlight();
+            });
+        });
+
+        // Initial update
+        updateTotalAndHighlight();
+    </script>
+    </div>
+
+</body>
+</html>
