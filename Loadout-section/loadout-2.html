@@ -33,6 +33,7 @@
             justify-content: space-between;
             flex-wrap: wrap;
             max-width: 1000px;
+            overflow: visible; /* Ensure dropdowns can extend beyond container */
         }
 
         .my-planner .category {
@@ -42,6 +43,8 @@
             backdrop-filter: blur(4px);
             border: 1px solid rgba(79,195,247,0.2);
             box-shadow: 0 0 6px rgba(79,195,247,0.12);
+            overflow: visible; /* Allow dropdowns to extend beyond category bounds */
+            position: relative;
         }
 
         .my-planner .category h2 {
@@ -135,97 +138,21 @@
             width: fit-content;
         }
 
-        .item-card {
-            position: relative;
-            width: 140px;
-            background: #0b1020;
-            border: 1px solid #4fc3f7;
-            border-radius: 8px;
-            padding: 8px;
-            text-align: center;
-            color: white;
-        }
-
-        .card-dropdown {
-            margin-top: 8px;
-            position: relative; /* needed for absolute menu */
-        }
-
-        .dropdown-toggle {
-            background: #1a2336;
-            color: white;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #4fc3f7;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            z-index: 1000;
-            position: relative;
-        }
-
-        /* The arrow button */
-        .arrow-btn {
-            font-size: 16px;
-            user-select: none;
-            transition: transform 0.2s;
-        }
-
-        /* Dropdown menu */
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            min-width: 180px;   /* 👈 set a minimum width wider than the arrow */
-            width: max-content; /* 👈 auto-grow based on content */
-            background: #1a2336;
-            border: 1px solid #4fc3f7;
-            border-radius: 6px;
-            margin-top: 2px;
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(-10px);
-            transition: opacity 0.2s ease, transform 0.2s ease;
-            z-index: 9999;
-        }
-
-        .dropdown {
-            position: relative; /* container */
-        }
-
-        .dropdown.open .arrow-btn {
-            transform: rotate(180deg);
-        }
-
-        .dropdown-item {
-            padding: 10px;
-            cursor: pointer;
-            color: white;
-        }
-
-        /* When dropdown is open */
-        .dropdown.open .dropdown-menu {
-            opacity: 1;
-            pointer-events: auto;
-            transform: translateY(0);
-        }
-
-
-
+        /* Ensure proper box sizing and reset */
         * { box-sizing: border-box; }
         body { font-family: system-ui, sans-serif; padding: 24px; }
 
         /* --- Component wrapper --- */
         .dropdown {
-            position: relative;              /* anchor for the absolute menu */
-            display: inline-block;           /* or block; up to you */
+            position: relative;
+            display: inline-block;
         }
 
         /* --- Toggle button --- */
         .dropdown__button {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: .5rem;
             padding: .5rem .75rem;
             border: 1px solid #4fc3f7;
@@ -233,70 +160,115 @@
             background: #1a2336;
             color: #fff;
             cursor: pointer;
-            min-width: 40px;                /* button size stays the same */
+            min-width: 40px;
+            height: 32px;
+            transition: all 0.2s ease;
         }
-        .dropdown__button:focus { outline: 2px solid #8fd3ff; outline-offset: 2px; }
 
-        .dropdown__arrow { transition: transform .2s ease; }
-        .dropdown.is-open .dropdown__arrow { transform: rotate(180deg); }
+        .dropdown__button:hover {
+            background: #2a2f44;
+            border-color: #5fc5f7;
+        }
+
+        .dropdown__button:focus {
+            outline: 2px solid #8fd3ff;
+            outline-offset: 2px;
+        }
+
+        .dropdown__arrow {
+            transition: transform .2s ease;
+            font-size: 14px;
+        }
+
+        .dropdown.is-open .dropdown__arrow {
+            transform: rotate(180deg);
+        }
 
         /* --- Menu --- */
         .dropdown__menu {
             position: absolute;
-            top: calc(100% + 6px);
+            top: calc(100% + 4px);
             left: 0;
+            right: 0;
 
             /* menu can be wider than the button */
-            min-width: 220px;                /* give breathing room */
-            width: max-content;              /* grow to fit long text */
-            max-width: 420px;                /* optional safety cap */
+            min-width: 200px;
+            width: max-content;
+            max-width: 300px;
             white-space: nowrap;
 
             background: #1a2336;
             color: #fff;
             border: 1px solid #4fc3f7;
-            border-radius: 10px;
-            padding: 6px 0;
+            border-radius: 8px;
+            padding: 4px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 
             /* hidden by default */
             opacity: 0;
             visibility: hidden;
-            transform: translateY(-4px);
+            transform: translateY(-8px);
             pointer-events: none;
-            transition: opacity .18s ease, transform .18s ease, visibility 0s linear .18s;
+            transition: opacity .2s ease, transform .2s ease, visibility 0s linear .2s;
 
-            /* make sure it's above neighbors */
-            z-index: 10000;                  /* high enough to win stacking battles */
+            /* Critical: ensure it's above everything */
+            z-index: 99999;
         }
+
         .dropdown.is-open .dropdown__menu {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
             pointer-events: auto;
-            transition: opacity .18s ease, transform .18s ease;
+            transition: opacity .2s ease, transform .2s ease;
         }
 
         /* Boost the whole component when open so ancestors don't cover it */
-        .dropdown.is-open { z-index: 10001; position: relative; }
+        .dropdown.is-open {
+            z-index: 100000;
+            position: relative;
+        }
 
         /* --- Items --- */
         .dropdown__item {
             display: block;
             width: 100%;
-            padding: .5rem .75rem;
+            padding: .6rem .75rem;
             border: 0;
             background: transparent;
             color: inherit;
             text-align: left;
             cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.15s ease;
         }
-        .dropdown__item:hover,
-        .dropdown__item:focus { background: #2a2f44; outline: none; }
 
-        /* ensure ancestors don’t clip the menu */
-        .category, .item-card { overflow: visible; }
-        .dropdown.is-open { position: relative; z-index: 10001; }
-        .dropdown.is-open .dropdown__menu { z-index: 10002; }
+        .dropdown__item:hover,
+        .dropdown__item:focus {
+            background: #2a2f44;
+            outline: none;
+        }
+
+        /* Ensure ancestors don't clip the menu and fix positioning */
+        .category {
+            overflow: visible;
+            position: relative;
+        }
+
+        .item-card {
+            overflow: visible;
+            position: relative;
+        }
+
+        /* Fix the pistol slot specifically */
+        .pistol-slot {
+            position: relative;
+            z-index: 1;
+        }
+
+        .pistol-slot .dropdown.is-open {
+            z-index: 100001;
+        }
 
     </style>
 
@@ -350,25 +322,25 @@
             <div class="category">
                 <h2>Pistols</h2>
 
-<!--                <div class="pistol-slot">-->
-<!--                    <div class="item-card" data-price="200">-->
-<!--                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/usp-s.png" alt="USP-S">-->
-<!--                        <div class="item-info">-->
-<!--                            <h3>USP-S</h3>-->
-<!--                            <p>$200</p>-->
-<!--                        </div>-->
-<!--                        <div class="card-dropdown dropdown">-->
-<!--                            <div class="dropdown-toggle">-->
-<!--                                <span class="arrow-btn" onclick="toggleDropdown(this)">&#9662;</span>-->
-<!--                            </div>-->
-<!--                            <div class="dropdown-menu">-->
-<!--                                <div class="dropdown-item" onclick="selectItem(this)">USP-S ($200)</div>-->
-<!--                                <div class="dropdown-item" onclick="selectItem(this)">Glock-18 ($200)</div>-->
-<!--                                <div class="dropdown-item" onclick="selectItem(this)">P2000 ($300)</div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
+                <!--                <div class="pistol-slot">-->
+                <!--                    <div class="item-card" data-price="200">-->
+                <!--                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/usp-s.png" alt="USP-S">-->
+                <!--                        <div class="item-info">-->
+                <!--                            <h3>USP-S</h3>-->
+                <!--                            <p>$200</p>-->
+                <!--                        </div>-->
+                <!--                        <div class="card-dropdown dropdown">-->
+                <!--                            <div class="dropdown-toggle">-->
+                <!--                                <span class="arrow-btn" onclick="toggleDropdown(this)">&#9662;</span>-->
+                <!--                            </div>-->
+                <!--                            <div class="dropdown-menu">-->
+                <!--                                <div class="dropdown-item" onclick="selectItem(this)">USP-S ($200)</div>-->
+                <!--                                <div class="dropdown-item" onclick="selectItem(this)">Glock-18 ($200)</div>-->
+                <!--                                <div class="dropdown-item" onclick="selectItem(this)">P2000 ($300)</div>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                    </div>-->
+                <!--                </div>-->
                 <div class="pistol-slot">
                     <div class="item-card" data-price="200">
                         <img src="https://gamestatlab.com/wp-content/uploads/2025/08/usp-s.png" alt="USP-S">
@@ -597,78 +569,76 @@
         }
 
 
-        function selectItem(el) {
-            const dropdown = el.closest('.dropdown');
-            const card = dropdown.closest('.item-card'); // parent card
 
-            // Extract weapon info from the clicked dropdown item
-            const [name, priceWithDollar] = el.textContent.split(' ($');
-            const price = parseInt(priceWithDollar);
-
-            // Update card UI
-            card.dataset.price = price;
-            card.querySelector("h3").textContent = name;
-            card.querySelector("p").textContent = `$${price}`;
-            card.querySelector("img").src = `https://gamestatlab.com/wp-content/uploads/2025/08/${name.toLowerCase().replace(/ /g, "-")}.png`;
-
-            // Reset quantity to 0 when swapping
-            const quantitySpan = card.querySelector(".quantity");
-            if (quantitySpan) quantitySpan.textContent = "0";
-
-            // Close dropdown
-            dropdown.classList.remove("open");
-
-            // Recalculate totals
-            updateTotalAndHighlight();
-        }
-
-        // Optional: close if clicked outside
-        document.addEventListener("click", (e) => {
-            if (!dropdown.contains(e.target)) {
-                dropdown.classList.remove("open");
-            }
-        });
 
         (function () {
             const dropdown = document.getElementById('weaponDropdown');
             const btn = dropdown.querySelector('.dropdown__button');
             const menu = dropdown.querySelector('.dropdown__menu');
             const items = Array.from(menu.querySelectorAll('.dropdown__item'));
-            const out = document.getElementById('output');
+            const card = dropdown.closest('.item-card');
 
             function openMenu() {
                 dropdown.classList.add('is-open');
                 btn.setAttribute('aria-expanded', 'true');
             }
+
             function closeMenu() {
                 dropdown.classList.remove('is-open');
                 btn.setAttribute('aria-expanded', 'false');
             }
+
             function toggleMenu() {
                 dropdown.classList.contains('is-open') ? closeMenu() : openMenu();
             }
 
+            // Prevent event bubbling and handle button clicks
             btn.addEventListener('click', (e) => {
+                e.preventDefault();
                 e.stopPropagation();
                 toggleMenu();
             });
 
+            // Handle item selection
             items.forEach(item => {
                 item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
                     const value = item.dataset.value;
                     const price = item.dataset.price;
-                    btn.firstChild.nodeValue = value + ' ';     // update button label (keep arrow)
-                    out.textContent = `Selected: ${value} ($${price})`;
+
+                    // Update the card display
+                    card.dataset.price = price;
+                    card.querySelector("h3").textContent = value;
+                    card.querySelector("p").textContent = `$${price}`;
+
+                    // Update image source
+                    const imageName = value.toLowerCase().replace(/ /g, "-").replace(/[^a-z0-9-]/g, "");
+                    card.querySelector("img").src = `https://gamestatlab.com/wp-content/uploads/2025/08/${imageName}.png`;
+
+                    // Reset quantity if it exists
+                    const quantitySpan = card.querySelector(".quantity");
+                    if (quantitySpan) quantitySpan.textContent = "0";
+
                     closeMenu();
+
+                    // Recalculate totals
+                    updateTotalAndHighlight();
                 });
             });
 
             // Close on outside click / Escape
             document.addEventListener('click', (e) => {
-                if (!dropdown.contains(e.target)) closeMenu();
+                if (!dropdown.contains(e.target)) {
+                    closeMenu();
+                }
             });
+
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') closeMenu();
+                if (e.key === 'Escape') {
+                    closeMenu();
+                }
             });
         })();
 
