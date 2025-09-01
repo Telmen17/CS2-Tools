@@ -135,14 +135,170 @@
             width: fit-content;
         }
 
-        .highlight {
-            border-color: #00ffd6 !important;
-            box-shadow: 0 0 10px #00ffd6, inset 0 0 6px rgba(0, 255, 214, 0.4);
-            transform: scale(1.02);
+        .item-card {
+            position: relative;
+            width: 140px;
+            background: #0b1020;
+            border: 1px solid #4fc3f7;
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            color: white;
         }
+
+        .card-dropdown {
+            margin-top: 8px;
+            position: relative; /* needed for absolute menu */
+        }
+
+        .dropdown-toggle {
+            background: #1a2336;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #4fc3f7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            z-index: 1000;
+            position: relative;
+        }
+
+        /* The arrow button */
+        .arrow-btn {
+            font-size: 16px;
+            user-select: none;
+            transition: transform 0.2s;
+        }
+
+        /* Dropdown menu */
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 180px;   /* 👈 set a minimum width wider than the arrow */
+            width: max-content; /* 👈 auto-grow based on content */
+            background: #1a2336;
+            border: 1px solid #4fc3f7;
+            border-radius: 6px;
+            margin-top: 2px;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 9999;
+        }
+
+        .dropdown {
+            position: relative; /* container */
+        }
+
+        .dropdown.open .arrow-btn {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-item {
+            padding: 10px;
+            cursor: pointer;
+            color: white;
+        }
+
+        /* When dropdown is open */
+        .dropdown.open .dropdown-menu {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+
+
+        * { box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; padding: 24px; }
+
+        /* --- Component wrapper --- */
+        .dropdown {
+            position: relative;              /* anchor for the absolute menu */
+            display: inline-block;           /* or block; up to you */
+        }
+
+        /* --- Toggle button --- */
+        .dropdown__button {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .5rem .75rem;
+            border: 1px solid #4fc3f7;
+            border-radius: 8px;
+            background: #1a2336;
+            color: #fff;
+            cursor: pointer;
+            min-width: 40px;                /* button size stays the same */
+        }
+        .dropdown__button:focus { outline: 2px solid #8fd3ff; outline-offset: 2px; }
+
+        .dropdown__arrow { transition: transform .2s ease; }
+        .dropdown.is-open .dropdown__arrow { transform: rotate(180deg); }
+
+        /* --- Menu --- */
+        .dropdown__menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+
+            /* menu can be wider than the button */
+            min-width: 220px;                /* give breathing room */
+            width: max-content;              /* grow to fit long text */
+            max-width: 420px;                /* optional safety cap */
+            white-space: nowrap;
+
+            background: #1a2336;
+            color: #fff;
+            border: 1px solid #4fc3f7;
+            border-radius: 10px;
+            padding: 6px 0;
+
+            /* hidden by default */
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-4px);
+            pointer-events: none;
+            transition: opacity .18s ease, transform .18s ease, visibility 0s linear .18s;
+
+            /* make sure it's above neighbors */
+            z-index: 10000;                  /* high enough to win stacking battles */
+        }
+        .dropdown.is-open .dropdown__menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            pointer-events: auto;
+            transition: opacity .18s ease, transform .18s ease;
+        }
+
+        /* Boost the whole component when open so ancestors don't cover it */
+        .dropdown.is-open { z-index: 10001; position: relative; }
+
+        /* --- Items --- */
+        .dropdown__item {
+            display: block;
+            width: 100%;
+            padding: .5rem .75rem;
+            border: 0;
+            background: transparent;
+            color: inherit;
+            text-align: left;
+            cursor: pointer;
+        }
+        .dropdown__item:hover,
+        .dropdown__item:focus { background: #2a2f44; outline: none; }
+
+        /* ensure ancestors don’t clip the menu */
+        .category, .item-card { overflow: visible; }
+        .dropdown.is-open { position: relative; z-index: 10001; }
+        .dropdown.is-open .dropdown__menu { z-index: 10002; }
+
     </style>
-
-
 
 </head>
 <body>
@@ -163,11 +319,6 @@
                         <h3>Kevlar</h3>
                         <p>$650</p>
                     </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
-                    </div>
                 </div>
 
                 <div class="item-card" data-price="1000">
@@ -175,11 +326,6 @@
                     <div class="item-info">
                         <h3>Kevlar + Helmet</h3>
                         <p>$1000</p>
-                    </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
                     </div>
                 </div>
 
@@ -189,11 +335,6 @@
                         <h3>Zeus x27</h3>
                         <p>$200</p>
                     </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
-                    </div>
                 </div>
 
                 <div class="item-card" data-price="400">
@@ -202,27 +343,51 @@
                         <h3>Defuse Kit</h3>
                         <p>$400</p>
                     </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
-                    </div>
                 </div>
             </div>
 
             <!-- Pistols -->
             <div class="category">
                 <h2>Pistols</h2>
-                <div class="item-card" data-price="200">
-                    <img src="https://gamestatlab.com/wp-content/uploads/2025/08/usp-s.png" alt="USP-S">
-                    <div class="item-info">
-                        <h3>USP-S</h3>
-                        <p>$200</p>
-                    </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
+
+<!--                <div class="pistol-slot">-->
+<!--                    <div class="item-card" data-price="200">-->
+<!--                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/usp-s.png" alt="USP-S">-->
+<!--                        <div class="item-info">-->
+<!--                            <h3>USP-S</h3>-->
+<!--                            <p>$200</p>-->
+<!--                        </div>-->
+<!--                        <div class="card-dropdown dropdown">-->
+<!--                            <div class="dropdown-toggle">-->
+<!--                                <span class="arrow-btn" onclick="toggleDropdown(this)">&#9662;</span>-->
+<!--                            </div>-->
+<!--                            <div class="dropdown-menu">-->
+<!--                                <div class="dropdown-item" onclick="selectItem(this)">USP-S ($200)</div>-->
+<!--                                <div class="dropdown-item" onclick="selectItem(this)">Glock-18 ($200)</div>-->
+<!--                                <div class="dropdown-item" onclick="selectItem(this)">P2000 ($300)</div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+                <div class="pistol-slot">
+                    <div class="item-card" data-price="200">
+                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/usp-s.png" alt="USP-S">
+                        <div class="item-info">
+                            <h3>USP-S</h3>
+                            <p>$200</p>
+                        </div>
+                        <div class="dropdown" id="weaponDropdown">
+                            <button class="dropdown__button" type="button"
+                                    aria-haspopup="listbox" aria-expanded="false" aria-controls="weaponMenu">
+                                <span class="dropdown__arrow">▾</span>
+                            </button>
+
+                            <div class="dropdown__menu" id="weaponMenu" role="listbox">
+                                <button class="dropdown__item" role="option" data-value="USP-S" data-price="200">USP-S ($200)</button>
+                                <button class="dropdown__item" role="option" data-value="Glock-18" data-price="200">Glock-18 ($200)</button>
+                                <button class="dropdown__item" role="option" data-value="P2000" data-price="300">P2000 ($300)</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -232,11 +397,6 @@
                         <h3>Glock-18</h3>
                         <p>$200</p>
                     </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
-                    </div>
                 </div>
 
                 <div class="item-card" data-price="300">
@@ -244,11 +404,6 @@
                     <div class="item-info">
                         <h3>P2000</h3>
                         <p>$300</p>
-                    </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
                     </div>
                 </div>
 
@@ -258,11 +413,6 @@
                         <h3>Dual Berettas</h3>
                         <p>$300</p>
                     </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
-                    </div>
                 </div>
 
                 <div class="item-card" data-price="300">
@@ -270,11 +420,6 @@
                     <div class="item-info">
                         <h3>P250</h3>
                         <p>$300</p>
-                    </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
                     </div>
                 </div>
             </div>
@@ -289,11 +434,6 @@
                         <h3>MAC-10</h3>
                         <p>$1050</p>
                     </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
-                    </div>
                 </div>
 
                 <div class="item-card" data-price="1500">
@@ -301,11 +441,6 @@
                     <div class="item-info">
                         <h3>MP5-SD</h3>
                         <p>$1500</p>
-                    </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
                     </div>
                 </div>
 
@@ -315,11 +450,6 @@
                         <h3>MP7</h3>
                         <p>$1500</p>
                     </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
-                    </div>
                 </div>
 
                 <div class="item-card" data-price="1250">
@@ -328,11 +458,6 @@
                         <h3>MP9</h3>
                         <p>$1250</p>
                     </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
-                    </div>
                 </div>
 
                 <div class="item-card" data-price="1400">
@@ -340,11 +465,6 @@
                     <div class="item-info">
                         <h3>PP-Bizon</h3>
                         <p>$1400</p>
-                    </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
                     </div>
                 </div>
             </div>
@@ -359,11 +479,6 @@
                         <h3>SSG 08</h3>
                         <p>$1700</p>
                     </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
-                    </div>
                 </div>
 
                 <div class="item-card" data-price="1800">
@@ -371,11 +486,6 @@
                     <div class="item-info">
                         <h3>Galil-AR</h3>
                         <p>$1800</p>
-                    </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
                     </div>
                 </div>
 
@@ -385,11 +495,6 @@
                         <h3>FAMAS</h3>
                         <p>$1950</p>
                     </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
-                    </div>
                 </div>
 
                 <div class="item-card" data-price="2700">
@@ -398,11 +503,6 @@
                         <h3>AK-47</h3>
                         <p>$2700</p>
                     </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
-                    </div>
                 </div>
 
                 <div class="item-card" data-price="2900">
@@ -410,11 +510,6 @@
                     <div class="item-info">
                         <h3>M4A4</h3>
                         <p>$2900</p>
-                    </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
                     </div>
                 </div>
             </div>
@@ -429,11 +524,6 @@
                         <h3>Flashbang</h3>
                         <p>$200</p>
                     </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
-                    </div>
                 </div>
 
                 <div class="item-card" data-price="300">
@@ -441,11 +531,6 @@
                     <div class="item-info">
                         <h3>Smoke Grenade</h3>
                         <p>$300</p>
-                    </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
                     </div>
                 </div>
 
@@ -455,11 +540,6 @@
                         <h3>HE Grenade</h3>
                         <p>$300</p>
                     </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
-                    </div>
                 </div>
 
                 <div class="item-card" data-price="400">
@@ -467,11 +547,6 @@
                     <div class="item-info">
                         <h3>Molotov</h3>
                         <p>$400</p>
-                    </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
                     </div>
                 </div>
 
@@ -481,11 +556,6 @@
                         <h3>Incendiary Grenade</h3>
                         <p>$600</p>
                     </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
-                    </div>
                 </div>
 
                 <div class="item-card" data-price="50">
@@ -493,11 +563,6 @@
                     <div class="item-info">
                         <h3>Decoy Grenade</h3>
                         <p>$50</p>
-                    </div>
-                    <div class="controls">
-                        <button class="minus">-</button>
-                        <span class="quantity">0</span>
-                        <button class="plus">+</button>
                     </div>
                 </div>
             </div>
@@ -531,23 +596,82 @@
             totalCostDisplay.textContent = "Total Cost: $" + total;
         }
 
-        // Attach plus/minus buttons
-        itemCards.forEach(card => {
-            const plusBtn = card.querySelector('.plus');
-            const minusBtn = card.querySelector('.minus');
-            const quantitySpan = card.querySelector('.quantity');
 
-            plusBtn.addEventListener('click', () => {
-                quantitySpan.textContent = parseInt(quantitySpan.textContent) + 1;
-                updateTotalAndHighlight();
-            });
+        function selectItem(el) {
+            const dropdown = el.closest('.dropdown');
+            const card = dropdown.closest('.item-card'); // parent card
 
-            minusBtn.addEventListener('click', () => {
-                let qty = parseInt(quantitySpan.textContent);
-                if (qty > 0) quantitySpan.textContent = qty - 1;
-                updateTotalAndHighlight();
-            });
+            // Extract weapon info from the clicked dropdown item
+            const [name, priceWithDollar] = el.textContent.split(' ($');
+            const price = parseInt(priceWithDollar);
+
+            // Update card UI
+            card.dataset.price = price;
+            card.querySelector("h3").textContent = name;
+            card.querySelector("p").textContent = `$${price}`;
+            card.querySelector("img").src = `https://gamestatlab.com/wp-content/uploads/2025/08/${name.toLowerCase().replace(/ /g, "-")}.png`;
+
+            // Reset quantity to 0 when swapping
+            const quantitySpan = card.querySelector(".quantity");
+            if (quantitySpan) quantitySpan.textContent = "0";
+
+            // Close dropdown
+            dropdown.classList.remove("open");
+
+            // Recalculate totals
+            updateTotalAndHighlight();
+        }
+
+        // Optional: close if clicked outside
+        document.addEventListener("click", (e) => {
+            if (!dropdown.contains(e.target)) {
+                dropdown.classList.remove("open");
+            }
         });
+
+        (function () {
+            const dropdown = document.getElementById('weaponDropdown');
+            const btn = dropdown.querySelector('.dropdown__button');
+            const menu = dropdown.querySelector('.dropdown__menu');
+            const items = Array.from(menu.querySelectorAll('.dropdown__item'));
+            const out = document.getElementById('output');
+
+            function openMenu() {
+                dropdown.classList.add('is-open');
+                btn.setAttribute('aria-expanded', 'true');
+            }
+            function closeMenu() {
+                dropdown.classList.remove('is-open');
+                btn.setAttribute('aria-expanded', 'false');
+            }
+            function toggleMenu() {
+                dropdown.classList.contains('is-open') ? closeMenu() : openMenu();
+            }
+
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleMenu();
+            });
+
+            items.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    const value = item.dataset.value;
+                    const price = item.dataset.price;
+                    btn.firstChild.nodeValue = value + ' ';     // update button label (keep arrow)
+                    out.textContent = `Selected: ${value} ($${price})`;
+                    closeMenu();
+                });
+            });
+
+            // Close on outside click / Escape
+            document.addEventListener('click', (e) => {
+                if (!dropdown.contains(e.target)) closeMenu();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeMenu();
+            });
+        })();
+
 
         // Initial update
         updateTotalAndHighlight();
