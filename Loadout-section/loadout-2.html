@@ -146,6 +146,7 @@
         .dropdown {
             position: relative;
             display: inline-block;
+            z-index: 10;
         }
 
         /* --- Toggle button --- */
@@ -186,15 +187,12 @@
 
         /* --- Menu --- */
         .dropdown__menu {
-            position: absolute;
+            position: fixed;
             top: calc(100% + 4px);
             left: 0;
-            right: 0;
+            right: auto; /* Remove right constraint to allow natural width */
 
-            /* menu can be wider than the button */
-            min-width: 200px;
-            width: max-content;
-            max-width: 300px;
+            width: 100%;
             white-space: nowrap;
 
             background: #1a2336;
@@ -241,6 +239,9 @@
             cursor: pointer;
             font-size: 0.9em;
             transition: background-color 0.15s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .dropdown__item:hover,
@@ -264,10 +265,25 @@
         .pistol-slot {
             position: relative;
             z-index: 1;
+            overflow: visible;
         }
 
         .pistol-slot .dropdown.is-open {
             z-index: 100001;
+        }
+
+        /* Ensure dropdown stays within column boundaries */
+        .pistol-slot .dropdown__menu {
+            /* Position dropdown to stay within the pistol column */
+            left: 0;
+            right: auto;
+            max-width: calc(100% - 10px); /* Ensure it doesn't exceed column width */
+            transform-origin: top left;
+        }
+
+        /* For other categories, ensure dropdowns don't overflow */
+        .category .dropdown__menu {
+            max-width: calc(100% - 20px); /* Leave some margin */
         }
 
     </style>
@@ -322,25 +338,6 @@
             <div class="category">
                 <h2>Pistols</h2>
 
-                <!--                <div class="pistol-slot">-->
-                <!--                    <div class="item-card" data-price="200">-->
-                <!--                        <img src="https://gamestatlab.com/wp-content/uploads/2025/08/usp-s.png" alt="USP-S">-->
-                <!--                        <div class="item-info">-->
-                <!--                            <h3>USP-S</h3>-->
-                <!--                            <p>$200</p>-->
-                <!--                        </div>-->
-                <!--                        <div class="card-dropdown dropdown">-->
-                <!--                            <div class="dropdown-toggle">-->
-                <!--                                <span class="arrow-btn" onclick="toggleDropdown(this)">&#9662;</span>-->
-                <!--                            </div>-->
-                <!--                            <div class="dropdown-menu">-->
-                <!--                                <div class="dropdown-item" onclick="selectItem(this)">USP-S ($200)</div>-->
-                <!--                                <div class="dropdown-item" onclick="selectItem(this)">Glock-18 ($200)</div>-->
-                <!--                                <div class="dropdown-item" onclick="selectItem(this)">P2000 ($300)</div>-->
-                <!--                            </div>-->
-                <!--                        </div>-->
-                <!--                    </div>-->
-                <!--                </div>-->
                 <div class="pistol-slot">
                     <div class="item-card" data-price="200">
                         <img src="https://gamestatlab.com/wp-content/uploads/2025/08/usp-s.png" alt="USP-S">
@@ -358,6 +355,13 @@
                                 <button class="dropdown__item" role="option" data-value="USP-S" data-price="200">USP-S ($200)</button>
                                 <button class="dropdown__item" role="option" data-value="Glock-18" data-price="200">Glock-18 ($200)</button>
                                 <button class="dropdown__item" role="option" data-value="P2000" data-price="300">P2000 ($300)</button>
+                                <button class="dropdown__item" role="option" data-value="Dual Berettas" data-price="300">Dual Berettas ($300)</button>
+                                <button class="dropdown__item" role="option" data-value="P250" data-price="300">P250 ($300)</button>
+                                <button class="dropdown__item" role="option" data-value="Five-SeveN" data-price="500">Five-SeveN ($500)</button>
+                                <button class="dropdown__item" role="option" data-value="CZ75-Auto" data-price="300">CZ75-Auto ($500)</button>
+                                <button class="dropdown__item" role="option" data-value="Tec-9" data-price="300">Tec-9 ($500)</button>
+                                <button class="dropdown__item" role="option" data-value="R8 Revolver" data-price="600">R8 Revolver ($600)</button>
+                                <button class="dropdown__item" role="option" data-value="Desert Eagle" data-price="700">Desert Eagle ($700)</button>
                             </div>
                         </div>
                     </div>
@@ -581,6 +585,31 @@
             function openMenu() {
                 dropdown.classList.add('is-open');
                 btn.setAttribute('aria-expanded', 'true');
+
+                // Position dropdown to stay within column boundaries
+                positionDropdown();
+            }
+
+            function positionDropdown() {
+                const menu = dropdown.querySelector('.dropdown__menu');
+                const category = dropdown.closest('.category');
+                const categoryRect = category.getBoundingClientRect();
+                const menuRect = menu.getBoundingClientRect();
+
+                // Reset positioning
+                menu.style.left = '0';
+                menu.style.right = 'auto';
+                menu.style.maxWidth = '250px';
+
+                // Check if dropdown would extend beyond category boundaries
+                const dropdownRight = menuRect.left + menuRect.width;
+                const categoryRight = categoryRect.right;
+
+                // If dropdown extends beyond category, adjust positioning
+                if (dropdownRight > categoryRight - 10) {
+                    const overflow = dropdownRight - (categoryRight - 10);
+                    menu.style.maxWidth = `${Math.max(180, menuRect.width - overflow)}px`;
+                }
             }
 
             function closeMenu() {
@@ -640,8 +669,14 @@
                     closeMenu();
                 }
             });
-        })();
 
+            // Reposition dropdown on window resize
+            window.addEventListener('resize', () => {
+                if (dropdown.classList.contains('is-open')) {
+                    positionDropdown();
+                }
+            });
+        })();
 
         // Initial update
         updateTotalAndHighlight();
