@@ -78,6 +78,7 @@
             width: 40px;
             margin-right: 6px;
             filter: drop-shadow(0 0 3px rgba(79,195,247,0.3));
+            pointer-events: none;
         }
 
         .my-planner .item-info {
@@ -190,31 +191,31 @@
 
         /* --- Menu --- */
         .dropdown__menu {
-            position: fixed;
-            left: 0;
-            right: auto; /* Remove right constraint to allow natural width */
-
-            width: 100%;
-            white-space: nowrap;
-
+            position: fixed;          /* we'll position via JS */
+            left: 0; top: 0;          /* placeholder; JS sets real coords */
+            width: auto;              /* JS sets exact width */
             background: #1a2336;
             color: #fff;
             border: 1px solid #4fc3f7;
             border-radius: 8px;
             padding: 4px 0;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,.3);
 
-            /* hidden by default */
             opacity: 0;
             visibility: hidden;
             transform: translateY(-8px);
             pointer-events: none;
             transition: opacity .2s ease, transform .2s ease, visibility 0s linear .2s;
 
-            /* Critical: ensure it's above everything */
-            z-index: 9999;
+            z-index: 100000;          /* above everything */
+        }
 
-            display: block; /* We'll control visibility with JS */
+        /* visible state toggled on the menu itself */
+        .dropdown__menu.is-open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            pointer-events: auto;
         }
 
         .dropdown.is-open .dropdown__menu {
@@ -635,104 +636,121 @@
         }
 
 
-        document.querySelectorAll('.dropdown').forEach(dropdown => {
-            const btn = dropdown.querySelector('.dropdown__button');
-            const menu = dropdown.querySelector('.dropdown__menu');
-            const items = Array.from(menu.querySelectorAll('.dropdown__item'));
-            const card = dropdown.closest('.item-card');
+        (() => {
+            const DROPS = [...document.querySelectorAll('.dropdown')];
+            let open = null;                            // currently open {dropdown, menu, owner, posFn}
+            const scrim = document.createElement('div');// click-catcher for outside clicks
+            Object.assign(scrim.style, {
+                position: 'fixed', inset: '0', zIndex: '99999',
+                background: 'transparent', display: 'none'
+            });
+            document.body.appendChild(scrim);
 
-            // Store initial info for reset
-            const initialItem = {
-                name: card.querySelector("h3").textContent,
-                price: card.dataset.price,
-                imgSrc: card.querySelector("img").src
-            };
+            function positionMenu(dropdown, menu) {
+                const card = dropdown.closest('.item-card');
+                const rect = card.getBoundingClientRect();    // use the card width
+                const btn = dropdown.querySelector('.dropdown__button');
+                const bRect = btn.getBoundingClientRect();    // anchor vertical to the button
 
-            let currentSelected = null;
+                const left = rect.left + window.scrollX;
+                const top  = bRect.bottom + window.scrollY + 4; // 4px gap
 
-            function openMenu() {
-                dropdown.classList.add('is-open');
-                btn.setAttribute('aria-expanded', 'true');
+                menu.style.left  = `${left}px`;
+                menu.style.top   = `${top}px`;
+                menu.style.width = `${rect.width}px`;
             }
 
-            function closeMenu() {
+            function closeOpen() {
+                if (!open) return;
+                const { dropdown, menu, owner } = open;
+
+                menu.classList.remove('is-open');
                 dropdown.classList.remove('is-open');
-                btn.setAttribute('aria-expanded', 'false');
+
+                // put the menu back under its dropdown
+                owner.appendChild(menu);
+
+                scrim.style.display = 'none';
+                window.removeEventListener('scroll', open.posFn, true);
+                window.removeEventListener('resize', open.posFn, true);
+                open = null;
             }
 
-            function toggleMenu() {
-                // Close other dropdowns
-                document.querySelectorAll('.dropdown').forEach(d => {
-                    if (d !== dropdown) {
-                        d.classList.remove('is-open');
+            DROPS.forEach((dropdown) => {
+                const btn  = dropdown.querySelector('.dropdown__button');
+                const menu = dropdown.querySelector('.dropdown__menu');
+
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // close any other open menu
+                    if (open && open.dropdown !== dropdown) closeOpen();
+
+                    if (open && open.dropdown === dropdown) {
+                        closeOpen();
+                        return;
                     }
+
+                    // move this menu to <body> to escape stacking contexts
+                    const owner = dropdown;                  // remember original parent
+                    document.body.appendChild(menu);
+
+                    const posFn = () => positionMenu(dropdown, menu);
+                    posFn();
+
+                    // mark open
+                    menu.classList.add('is-open');
+                    dropdown.classList.add('is-open');
+
+                    // enable outside-click scrim
+                    scrim.style.display = 'block';
+
+                    // keep menu in place on scroll/resize
+                    window.addEventListener('scroll', posFn, true);
+                    window.addEventListener('resize', posFn, true);
+
+                    open = { dropdown, menu, owner, posFn };
                 });
-                dropdown.classList.contains('is-open') ? closeMenu() : openMenu();
-            }
 
-            function handleItemClick(item) {
-                const value = item.dataset.value;
-                const price = item.dataset.price;
+                // item clicks
+                menu.addEventListener('click', (e) => {
+                    const item = e.target.closest('.dropdown__item');
+                    if (!item) return;
 
-                if (currentSelected) currentSelected.style.display = "block";
-                else {
-                    const defaultItem = document.createElement('button');
-                    defaultItem.className = "dropdown__item";
-                    defaultItem.dataset.value = initialItem.name;
-                    defaultItem.dataset.price = initialItem.price;
-                    defaultItem.textContent = initialItem.name;
-                    defaultItem.addEventListener('click', () => handleItemClick(defaultItem));
-                    menu.appendChild(defaultItem);
-                }
+                    e.preventDefault();
+                    e.stopPropagation();
 
-                item.style.display = "none";
-                currentSelected = item;
+                    const card = dropdown.closest('.item-card');
+                    const value = item.dataset.value;
+                    const price = item.dataset.price;
 
-                // Update card
-                card.dataset.price = price;
-                card.querySelector("h3").textContent = value;
-                card.querySelector("p").textContent = `$${price}`;
-                const imageName = value.toLowerCase().replace(/ /g, "-").replace(/[^a-z0-9-]/g, "");
-                card.querySelector("img").src = `https://gamestatlab.com/wp-content/uploads/2025/08/${imageName}.png`;
+                    // swap card display
+                    card.dataset.price = price;
+                    card.querySelector('h3').textContent = value;
+                    card.querySelector('p').textContent  = `$${price}`;
+                    const imageName = value.toLowerCase().replace(/ /g, "-").replace(/[^a-z0-9-]/g, "");
+                    card.querySelector('img').src = `https://gamestatlab.com/wp-content/uploads/2025/08/${imageName}.png`;
 
-                const quantitySpan = card.querySelector(".quantity");
-                if (quantitySpan) quantitySpan.textContent = "0";
+                    // optional: reset quantity if you have one
+                    const q = card.querySelector('.quantity');
+                    if (q) q.textContent = '0';
 
-                closeMenu();
-                updateTotalAndHighlight();
-            }
-
-            btn.addEventListener('click', e => {
-                e.preventDefault();
-                e.stopPropagation();
-                toggleMenu();
+                    closeOpen();
+                    if (typeof updateTotalAndHighlight === 'function') updateTotalAndHighlight();
+                });
             });
 
-            items.forEach(item => item.addEventListener('click', e => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleItemClick(item);
-            }));
-        });
-
-        // Close all dropdowns on outside click
-        document.addEventListener('click', () => {
-            document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('is-open'));
-        });
-
-        // Close on ESC
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('is-open'));
-        });
-
-
-        // Close all dropdowns if clicking outside
-        document.addEventListener('click', () => {
-            document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('is-open'));
-        });
-
-        // Close on ESC
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('is-open')); });
+            // close on outside click / ESC
+            scrim.addEventListener('click', closeOpen);
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeOpen(); });
+            document.addEventListener('click', (e) => {
+                // clicks not on a button or menu should close
+                if (open && !e.target.closest('.dropdown__button') && !e.target.closest('.dropdown__menu')) {
+                    closeOpen();
+                }
+            });
+        })();
 
 
 
