@@ -64,6 +64,8 @@
             padding: 6px;
             border-radius: 5px;
             transition: all 0.2s ease;
+            z-index: 0;
+            overflow: visible;
         }
 
         .my-planner .item-card:hover {
@@ -146,7 +148,8 @@
         .dropdown {
             position: relative;
             display: inline-block;
-            z-index: 10;
+            z-index: auto;
+            overflow: visible;
         }
 
         /* --- Toggle button --- */
@@ -188,7 +191,6 @@
         /* --- Menu --- */
         .dropdown__menu {
             position: fixed;
-            top: calc(100% + 4px);
             left: 0;
             right: auto; /* Remove right constraint to allow natural width */
 
@@ -210,7 +212,9 @@
             transition: opacity .2s ease, transform .2s ease, visibility 0s linear .2s;
 
             /* Critical: ensure it's above everything */
-            z-index: 99999;
+            z-index: 9999;
+
+            display: block; /* We'll control visibility with JS */
         }
 
         .dropdown.is-open .dropdown__menu {
@@ -227,6 +231,10 @@
             position: relative;
         }
 
+        .dropdown__menu.show {
+            display: block;
+        }
+
         /* --- Items --- */
         .dropdown__item {
             display: block;
@@ -240,7 +248,7 @@
             font-size: 0.9em;
             transition: background-color 0.15s ease;
             white-space: nowrap;
-            overflow: hidden;
+            /*overflow: hidden;*/
             text-overflow: ellipsis;
         }
 
@@ -256,9 +264,8 @@
             position: relative;
         }
 
-        .item-card {
-            overflow: visible;
-            position: relative;
+        .item-card.is-open {
+            z-index: 1001;
         }
 
         /* Fix the pistol slot specifically */
@@ -277,7 +284,7 @@
             /* Position dropdown to stay within the pistol column */
             left: 0;
             right: auto;
-            max-width: calc(100% - 10px); /* Ensure it doesn't exceed column width */
+            /*max-width: calc(100% - 10px); !* Ensure it doesn't exceed column width *!*/
             transform-origin: top left;
         }
 
@@ -345,23 +352,18 @@
                             <h3>USP-S</h3>
                             <p>$200</p>
                         </div>
-                        <div class="dropdown" id="weaponDropdown">
+                        <div class="dropdown">
                             <button class="dropdown__button" type="button"
                                     aria-haspopup="listbox" aria-expanded="false" aria-controls="weaponMenu">
                                 <span class="dropdown__arrow">▾</span>
                             </button>
 
-                            <div class="dropdown__menu" id="weaponMenu" role="listbox">
-                                <button class="dropdown__item" role="option" data-value="USP-S" data-price="200">USP-S ($200)</button>
-                                <button class="dropdown__item" role="option" data-value="Glock-18" data-price="200">Glock-18 ($200)</button>
-                                <button class="dropdown__item" role="option" data-value="P2000" data-price="300">P2000 ($300)</button>
-                                <button class="dropdown__item" role="option" data-value="Dual Berettas" data-price="300">Dual Berettas ($300)</button>
-                                <button class="dropdown__item" role="option" data-value="P250" data-price="300">P250 ($300)</button>
-                                <button class="dropdown__item" role="option" data-value="Five-SeveN" data-price="500">Five-SeveN ($500)</button>
-                                <button class="dropdown__item" role="option" data-value="CZ75-Auto" data-price="300">CZ75-Auto ($500)</button>
-                                <button class="dropdown__item" role="option" data-value="Tec-9" data-price="300">Tec-9 ($500)</button>
-                                <button class="dropdown__item" role="option" data-value="R8 Revolver" data-price="600">R8 Revolver ($600)</button>
-                                <button class="dropdown__item" role="option" data-value="Desert Eagle" data-price="700">Desert Eagle ($700)</button>
+                            <div class="dropdown__menu" role="listbox">
+                                <button class="dropdown__item" role="option" data-value="Five-SeveN" data-price="500">Five-SeveN</button>
+                                <button class="dropdown__item" role="option" data-value="CZ75-Auto" data-price="300">CZ75-Auto</button>
+                                <button class="dropdown__item" role="option" data-value="Tec-9" data-price="300">Tec-9</button>
+                                <button class="dropdown__item" role="option" data-value="R8 Revolver" data-price="600">R8 Revolver</button>
+                                <button class="dropdown__item" role="option" data-value="Desert Eagle" data-price="700">Desert Eagle</button>
                             </div>
                         </div>
                     </div>
@@ -373,6 +375,21 @@
                         <h3>Glock-18</h3>
                         <p>$200</p>
                     </div>
+
+                    <div class="dropdown">
+                        <button class="dropdown__button" type="button"
+                                aria-haspopup="listbox" aria-expanded="false" aria-controls="weaponMenu">
+                            <span class="dropdown__arrow">▾</span>
+                        </button>
+
+                        <div class="dropdown__menu" role="listbox">
+                            <button class="dropdown__item" role="option" data-value="Five-SeveN" data-price="500">Five-SeveN</button>
+                            <button class="dropdown__item" role="option" data-value="CZ75-Auto" data-price="300">CZ75-Auto</button>
+                            <button class="dropdown__item" role="option" data-value="Tec-9" data-price="300">Tec-9</button>
+                            <button class="dropdown__item" role="option" data-value="R8 Revolver" data-price="600">R8 Revolver</button>
+                            <button class="dropdown__item" role="option" data-value="Desert Eagle" data-price="700">Desert Eagle</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="item-card" data-price="300">
@@ -380,6 +397,21 @@
                     <div class="item-info">
                         <h3>P2000</h3>
                         <p>$300</p>
+                    </div>
+
+                    <div class="dropdown">
+                        <button class="dropdown__button" type="button"
+                                aria-haspopup="listbox" aria-expanded="false" aria-controls="weaponMenu">
+                            <span class="dropdown__arrow">▾</span>
+                        </button>
+
+                        <div class="dropdown__menu" role="listbox">
+                            <button class="dropdown__item" role="option" data-value="Five-SeveN" data-price="500">Five-SeveN</button>
+                            <button class="dropdown__item" role="option" data-value="CZ75-Auto" data-price="300">CZ75-Auto</button>
+                            <button class="dropdown__item" role="option" data-value="Tec-9" data-price="300">Tec-9</button>
+                            <button class="dropdown__item" role="option" data-value="R8 Revolver" data-price="600">R8 Revolver</button>
+                            <button class="dropdown__item" role="option" data-value="Desert Eagle" data-price="700">Desert Eagle</button>
+                        </div>
                     </div>
                 </div>
 
@@ -389,6 +421,21 @@
                         <h3>Dual Berettas</h3>
                         <p>$300</p>
                     </div>
+
+                    <div class="dropdown">
+                        <button class="dropdown__button" type="button"
+                                aria-haspopup="listbox" aria-expanded="false" aria-controls="weaponMenu">
+                            <span class="dropdown__arrow">▾</span>
+                        </button>
+
+                        <div class="dropdown__menu" role="listbox">
+                            <button class="dropdown__item" role="option" data-value="Five-SeveN" data-price="500">Five-SeveN</button>
+                            <button class="dropdown__item" role="option" data-value="CZ75-Auto" data-price="300">CZ75-Auto</button>
+                            <button class="dropdown__item" role="option" data-value="Tec-9" data-price="300">Tec-9</button>
+                            <button class="dropdown__item" role="option" data-value="R8 Revolver" data-price="600">R8 Revolver</button>
+                            <button class="dropdown__item" role="option" data-value="Desert Eagle" data-price="700">Desert Eagle</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="item-card" data-price="300">
@@ -396,6 +443,21 @@
                     <div class="item-info">
                         <h3>P250</h3>
                         <p>$300</p>
+                    </div>
+
+                    <div class="dropdown">
+                        <button class="dropdown__button" type="button"
+                                aria-haspopup="listbox" aria-expanded="false" aria-controls="weaponMenu">
+                            <span class="dropdown__arrow">▾</span>
+                        </button>
+
+                        <div class="dropdown__menu" role="listbox">
+                            <button class="dropdown__item" role="option" data-value="Five-SeveN" data-price="500">Five-SeveN</button>
+                            <button class="dropdown__item" role="option" data-value="CZ75-Auto" data-price="300">CZ75-Auto</button>
+                            <button class="dropdown__item" role="option" data-value="Tec-9" data-price="300">Tec-9</button>
+                            <button class="dropdown__item" role="option" data-value="R8 Revolver" data-price="600">R8 Revolver</button>
+                            <button class="dropdown__item" role="option" data-value="Desert Eagle" data-price="700">Desert Eagle</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -573,43 +635,24 @@
         }
 
 
-
-
-        (function () {
-            const dropdown = document.getElementById('weaponDropdown');
+        document.querySelectorAll('.dropdown').forEach(dropdown => {
             const btn = dropdown.querySelector('.dropdown__button');
             const menu = dropdown.querySelector('.dropdown__menu');
             const items = Array.from(menu.querySelectorAll('.dropdown__item'));
             const card = dropdown.closest('.item-card');
 
+            // Store initial info for reset
+            const initialItem = {
+                name: card.querySelector("h3").textContent,
+                price: card.dataset.price,
+                imgSrc: card.querySelector("img").src
+            };
+
+            let currentSelected = null;
+
             function openMenu() {
                 dropdown.classList.add('is-open');
                 btn.setAttribute('aria-expanded', 'true');
-
-                // Position dropdown to stay within column boundaries
-                positionDropdown();
-            }
-
-            function positionDropdown() {
-                const menu = dropdown.querySelector('.dropdown__menu');
-                const category = dropdown.closest('.category');
-                const categoryRect = category.getBoundingClientRect();
-                const menuRect = menu.getBoundingClientRect();
-
-                // Reset positioning
-                menu.style.left = '0';
-                menu.style.right = 'auto';
-                menu.style.maxWidth = '250px';
-
-                // Check if dropdown would extend beyond category boundaries
-                const dropdownRight = menuRect.left + menuRect.width;
-                const categoryRight = categoryRect.right;
-
-                // If dropdown extends beyond category, adjust positioning
-                if (dropdownRight > categoryRight - 10) {
-                    const overflow = dropdownRight - (categoryRight - 10);
-                    menu.style.maxWidth = `${Math.max(180, menuRect.width - overflow)}px`;
-                }
             }
 
             function closeMenu() {
@@ -618,65 +661,81 @@
             }
 
             function toggleMenu() {
+                // Close other dropdowns
+                document.querySelectorAll('.dropdown').forEach(d => {
+                    if (d !== dropdown) {
+                        d.classList.remove('is-open');
+                    }
+                });
                 dropdown.classList.contains('is-open') ? closeMenu() : openMenu();
             }
 
-            // Prevent event bubbling and handle button clicks
-            btn.addEventListener('click', (e) => {
+            function handleItemClick(item) {
+                const value = item.dataset.value;
+                const price = item.dataset.price;
+
+                if (currentSelected) currentSelected.style.display = "block";
+                else {
+                    const defaultItem = document.createElement('button');
+                    defaultItem.className = "dropdown__item";
+                    defaultItem.dataset.value = initialItem.name;
+                    defaultItem.dataset.price = initialItem.price;
+                    defaultItem.textContent = initialItem.name;
+                    defaultItem.addEventListener('click', () => handleItemClick(defaultItem));
+                    menu.appendChild(defaultItem);
+                }
+
+                item.style.display = "none";
+                currentSelected = item;
+
+                // Update card
+                card.dataset.price = price;
+                card.querySelector("h3").textContent = value;
+                card.querySelector("p").textContent = `$${price}`;
+                const imageName = value.toLowerCase().replace(/ /g, "-").replace(/[^a-z0-9-]/g, "");
+                card.querySelector("img").src = `https://gamestatlab.com/wp-content/uploads/2025/08/${imageName}.png`;
+
+                const quantitySpan = card.querySelector(".quantity");
+                if (quantitySpan) quantitySpan.textContent = "0";
+
+                closeMenu();
+                updateTotalAndHighlight();
+            }
+
+            btn.addEventListener('click', e => {
                 e.preventDefault();
                 e.stopPropagation();
                 toggleMenu();
             });
 
-            // Handle item selection
-            items.forEach(item => {
-                item.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+            items.forEach(item => item.addEventListener('click', e => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleItemClick(item);
+            }));
+        });
 
-                    const value = item.dataset.value;
-                    const price = item.dataset.price;
+        // Close all dropdowns on outside click
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('is-open'));
+        });
 
-                    // Update the card display
-                    card.dataset.price = price;
-                    card.querySelector("h3").textContent = value;
-                    card.querySelector("p").textContent = `$${price}`;
+        // Close on ESC
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('is-open'));
+        });
 
-                    // Update image source
-                    const imageName = value.toLowerCase().replace(/ /g, "-").replace(/[^a-z0-9-]/g, "");
-                    card.querySelector("img").src = `https://gamestatlab.com/wp-content/uploads/2025/08/${imageName}.png`;
 
-                    // Reset quantity if it exists
-                    const quantitySpan = card.querySelector(".quantity");
-                    if (quantitySpan) quantitySpan.textContent = "0";
+        // Close all dropdowns if clicking outside
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('is-open'));
+        });
 
-                    closeMenu();
+        // Close on ESC
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('is-open')); });
 
-                    // Recalculate totals
-                    updateTotalAndHighlight();
-                });
-            });
 
-            // Close on outside click / Escape
-            document.addEventListener('click', (e) => {
-                if (!dropdown.contains(e.target)) {
-                    closeMenu();
-                }
-            });
 
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    closeMenu();
-                }
-            });
-
-            // Reposition dropdown on window resize
-            window.addEventListener('resize', () => {
-                if (dropdown.classList.contains('is-open')) {
-                    positionDropdown();
-                }
-            });
-        })();
 
         // Initial update
         updateTotalAndHighlight();
