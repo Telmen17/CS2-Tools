@@ -735,7 +735,15 @@
                 { name: "MP5-SD", price: 1500 },
                 { name: "MP7", price: 1500 },
                 { name: "MP9", price: 1250 },
-                { name: "PP-Bizon", price: 1400 }
+                { name: "PP-Bizon", price: 1400 },
+                { name: "P90", price: 2350 },
+                { name: "UMP-45", price: 1200 },
+                { name: "MAG-7", price: 1300 },
+                { name: "Nova", price: 1050 },
+                { name: "Sawed-Off", price: 1100 },
+                { name: "XM1014", price: 2000 },
+                { name: "M249", price: 5200 },
+                { name: "Negev", price: 1700 }
             ];
 
             const allRifles = [
@@ -743,7 +751,13 @@
                 { name: "Galil-AR", price: 1800 },
                 { name: "FAMAS", price: 1950 },
                 { name: "AK-47", price: 2700 },
-                { name: "M4A4", price: 2900 }
+                { name: "M4A4", price: 2900 },
+                { name: "M4A1-S", price: 2900 },
+                { name: "SG 553", price: 3000 },
+                { name: "AUG", price: 3300 },
+                { name: "AWP", price: 4750 },
+                { name: "SCAR-20", price: 5000 },
+                { name: "G3SG1", price: 5000 },
             ];
 
             // Initialize slots for each category
@@ -846,21 +860,68 @@
                 card.querySelector("h3").textContent = weapon.name;
                 card.querySelector("p").textContent = `$${weapon.price}`;
 
-                // Update the image
-                let imageName = weapon.name.toLowerCase().replace(/ /g, "-").replace(/[^a-z0-9-]/g, "");
+                // Map special cases
+                const IMAGE_MAP = {
+                    "Five-SeveN": "five-seven",
+                    "CZ75-Auto": "cz75",
+                    "Tec-9": "tec-9",
+                    "R8 Revolver": "R8_Revolver",
+                    "Desert Eagle": "desert-eagle",
+                    "Dual Berettas": "dual-berretas",
+                    "P250": "p250-exeter-250",
+                    "PP-Bizon": "PP-Bizon",
+                    "P90": "P90",
+                    "UMP-45": "UMP-45",
+                    "MAG-7": "MAG-7",
+                    "Nova": "Nova",
+                    "Sawed-Off": "Sawed-Off",
+                    "XM1014": "XM1014",
+                    "M249": "M249",
+                    "Negev": "Negev",
+                    "MAC-10": "MAC-10",
+                    "M4A1-S": "M4A1-S",
+                    "SSG 08": "SSG_08",
+                    "Galil-AR": "Galil_AR",
+                    "FAMAS": "FAMAS",
+                    "AK-47": "AK-47",
+                    "M4A4": "M4A4",
+                    "SG 553": "SG_553",
+                    "AWP": "AWP",
+                    "SCAR-20": "SCAR-20",
+                    "G3SG1": "G3SG1",
+                    "MP5-SD": "MP5-SD",
+                    "MP7": "MP7",
+                    "MP9": "MP9",
+                    "AUG": "AUG",
+                };
 
-                // Handle special cases for image names
-                if (weapon.name === "Dual Berettas") {
-                    imageName = "dual-berretas";
-                } else if (weapon.name === "P250") {
-                    imageName = "p250-exeter-250";
-                } else if (weapon.name === "SSG 08") {
-                    imageName = "SSG_08";
-                } else if (weapon.name === "Galil-AR") {
-                    imageName = "Galil_AR";
+                // Compute image name - check IMAGE_MAP first for special cases
+                let imageName = IMAGE_MAP[weapon.name];
+                if (!imageName) {
+                    // If not in IMAGE_MAP, use the complex transformation
+                    imageName = weapon.name
+                        .toLowerCase()
+                        .normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '')   // remove accents
+                        .replace(/&/g, 'and')
+                        .replace(/['']/g, '')
+                        .replace(/[\u2013\u2014]/g, '-')   // en/em dash -> hyphen
+                        .replace(/[^a-z0-9-]+/g, '-')      // non-allowed -> hyphen
+                        .replace(/^-+|-+$/g, '')           // trim hyphens
+                        .replace(/--+/g, '-');             // collapse doubles
                 }
 
-                card.querySelector("img").src = `https://gamestatlab.com/wp-content/uploads/2025/08/${imageName}.webp`;
+                // Determine file extension
+                let ext = 'png'; // Default for pistols
+                if (!allPistols.some(p => p.name === weapon.name)) {
+                    ext = 'webp'; // Mid-Tier and Rifles
+                } else if (weapon.name === "R8 Revolver") {
+                    ext = 'webp'; // R8 Revolver uses .webp
+                }
+
+                // Set image
+                card.querySelector('img').src = `https://gamestatlab.com/wp-content/uploads/2025/08/${imageName}.${ext}`;
+
 
                 // Close the dropdown first
                 closeOpen();
