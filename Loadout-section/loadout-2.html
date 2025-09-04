@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CS2 CT Loadout Planner - HUD</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -34,6 +35,159 @@
             flex-wrap: wrap;
             max-width: 1000px;
             overflow: visible; /* Ensure dropdowns can extend beyond container */
+        }
+
+        /* Mobile Responsive Design */
+        @media (max-width: 768px) {
+            .my-planner {
+                padding: 5px;
+                max-width: 100%;
+            }
+
+            .my-planner h1 {
+                font-size: 1.4em;
+                margin-bottom: 15px;
+            }
+
+            .my-planner .categories {
+                flex-direction: column;
+                gap: 10px;
+                max-width: 100%;
+            }
+
+            .my-planner .category {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+
+            .my-planner .category h2 {
+                font-size: 1em;
+                padding: 8px 0;
+            }
+
+            .my-planner .item-card {
+                padding: 8px;
+                margin-bottom: 4px;
+                min-height: 50px;
+            }
+
+            .my-planner .item-card img {
+                width: 35px;
+                margin-right: 8px;
+            }
+
+            .my-planner .item-info h3 {
+                font-size: 0.8em;
+            }
+
+            .my-planner .item-info p {
+                font-size: 0.65em;
+            }
+
+            .my-planner #totalCost {
+                font-size: 1.2em;
+                padding: 8px 15px;
+                margin: 10px auto;
+            }
+
+            /* Mobile dropdown adjustments */
+            .dropdown__button {
+                min-width: 35px;
+                height: 28px;
+                padding: 0.4rem 0.6rem;
+            }
+
+            .dropdown__menu {
+                max-width: calc(100vw - 20px);
+                left: 10px !important;
+                right: 10px !important;
+                width: auto !important;
+                margin: 0 !important;
+                padding-top: 0 !important;
+                top: auto !important;
+            }
+
+            .dropdown__item {
+                padding: 0.8rem 1rem;
+                font-size: 0.85em;
+            }
+        }
+
+        /* Small mobile devices */
+        @media (max-width: 480px) {
+            .my-planner {
+                padding: 3px;
+            }
+
+            .my-planner h1 {
+                font-size: 1.2em;
+                margin-bottom: 10px;
+            }
+
+            .my-planner .item-card {
+                padding: 6px;
+                min-height: 45px;
+            }
+
+            .my-planner .item-card img {
+                width: 30px;
+                margin-right: 6px;
+            }
+
+            .my-planner .item-info h3 {
+                font-size: 0.75em;
+            }
+
+            .my-planner .item-info p {
+                font-size: 0.6em;
+            }
+
+            .my-planner #totalCost {
+                font-size: 1.1em;
+                padding: 6px 12px;
+            }
+
+            .dropdown__button {
+                min-width: 30px;
+                height: 26px;
+                padding: 0.3rem 0.5rem;
+            }
+
+            .dropdown__item {
+                padding: 0.7rem 0.8rem;
+                font-size: 0.8em;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (max-width: 768px) {
+            .my-planner .item-card {
+                cursor: pointer;
+                -webkit-tap-highlight-color: rgba(0, 255, 195, 0.2);
+            }
+
+            .dropdown__button {
+                -webkit-tap-highlight-color: rgba(79, 195, 247, 0.2);
+            }
+
+            .dropdown__item {
+                -webkit-tap-highlight-color: rgba(42, 47, 68, 0.5);
+            }
+
+            /* Improve touch targets */
+            .my-planner .item-card {
+                min-height: 44px; /* iOS recommended minimum touch target */
+            }
+
+            .dropdown__button {
+                min-height: 44px;
+            }
+
+            .dropdown__item {
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
         }
 
         .my-planner .category {
@@ -72,6 +226,21 @@
             border-color: #4fc3f7;
             box-shadow: 0 0 8px rgba(79,195,247,0.3);
             transform: scale(1.01);
+        }
+
+        .my-planner .item-card.selected {
+            border-color: #00ffc3;
+            background: rgba(0, 255, 195, 0.1);
+            box-shadow: 0 0 12px rgba(0, 255, 195, 0.4);
+            transform: scale(1.02);
+        }
+
+        .my-planner .item-card.selected .item-info h3 {
+            color: #00ffc3;
+        }
+
+        .my-planner .item-card.selected .item-info p {
+            color: #00ffc3;
         }
 
         .my-planner .item-card img {
@@ -139,6 +308,13 @@
             border-radius: 8px;
             border: 1px solid #00ffc3;
             width: fit-content;
+            transition: all 0.3s ease;
+        }
+
+        .my-planner #totalCost.updating {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 195, 0.6);
+            background: rgba(0, 255, 195, 0.2);
         }
 
         /* Ensure proper box sizing and reset */
@@ -199,6 +375,7 @@
             border: 1px solid #4fc3f7;
             border-radius: 8px;
             padding: 4px 0;
+            margin: 0;                /* Ensure no margin */
             box-shadow: 0 4px 12px rgba(0,0,0,.3);
 
             opacity: 0;
@@ -682,27 +859,62 @@
         const itemCards = document.querySelectorAll('.item-card');
         const totalCostDisplay = document.getElementById('totalCost');
 
-        // Function to update total cost and highlight items
+        // Function to animate number changes
+        function animateNumberChange(element, newValue, duration = 500) {
+            const startValue = parseInt(element.textContent.replace(/[^0-9]/g, '')) || 0;
+            const difference = newValue - startValue;
+            const startTime = performance.now();
+
+            // Add updating class for visual feedback
+            element.classList.add('updating');
+
+            function updateNumber(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // Easing function for smooth animation
+                const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+                const currentValue = Math.round(startValue + (difference * easeOutCubic));
+
+                element.textContent = "Total Cost: $" + currentValue;
+
+                if (progress < 1) {
+                    requestAnimationFrame(updateNumber);
+                } else {
+                    // Remove updating class when animation completes
+                    setTimeout(() => {
+                        element.classList.remove('updating');
+                    }, 200);
+                }
+            }
+
+            requestAnimationFrame(updateNumber);
+        }
+
+        // Function to update total cost and highlight selected items
         function updateTotalAndHighlight() {
             let total = 0;
 
             itemCards.forEach(card => {
                 const price = parseInt(card.dataset.price);
-                const quantitySpan = card.querySelector('.quantity');
-                const quantity = parseInt(quantitySpan.textContent);
 
-                // Update total
-                total += price * quantity;
-
-                // Add or remove highlight
-                if (quantity > 0) {
-                    card.classList.add('highlight');
-                } else {
-                    card.classList.remove('highlight');
+                // Check if the card is selected
+                if (card.classList.contains('selected')) {
+                    total += price;
                 }
             });
 
-            totalCostDisplay.textContent = "Total Cost: $" + total;
+            // Animate the number change
+            animateNumberChange(totalCostDisplay, total);
+        }
+
+        // Function to handle weapon card selection
+        function handleWeaponSelection(card) {
+            // Toggle selection
+            card.classList.toggle('selected');
+
+            // Update total cost
+            updateTotalAndHighlight();
         }
 
 
@@ -929,10 +1141,8 @@
                 // Then re-render all menus to update available options
                 renderMenus();
 
-                // Update totals if function exists
-                if (typeof updateTotalAndHighlight === 'function') {
-                    updateTotalAndHighlight();
-                }
+                // Update totals
+                updateTotalAndHighlight();
             }
 
             // ---- Menu rendering ----
@@ -990,9 +1200,26 @@
                 const btn = dropdown.querySelector('.dropdown__button');
                 const bRect = btn.getBoundingClientRect();
 
-                menu.style.left  = `${rect.left + window.scrollX}px`;
-                menu.style.top   = `${bRect.bottom + window.scrollY + 4}px`;
-                menu.style.width = `${rect.width}px`;
+                // Check if we're on mobile
+                const isMobile = window.innerWidth <= 768;
+
+                if (isMobile) {
+                    // Mobile positioning - full width with margins, positioned directly below button
+                    menu.style.left = '10px';
+                    menu.style.right = '10px';
+                    menu.style.width = 'auto';
+                    menu.style.top = `${bRect.bottom + window.scrollY}px`; // Remove extra 4px margin
+                    menu.style.marginTop = '0'; // Ensure no margin
+                    menu.style.paddingTop = '0'; // Ensure no padding
+                } else {
+                    // Desktop positioning
+                    menu.style.left = `${rect.left + window.scrollX}px`;
+                    menu.style.top = `${bRect.bottom + window.scrollY + 4}px`;
+                    menu.style.width = `${rect.width}px`;
+                    menu.style.right = 'auto';
+                    menu.style.marginTop = '0';
+                    menu.style.paddingTop = '0';
+                }
             }
 
             function closeOpen() {
@@ -1053,6 +1280,25 @@
 
             // Initial render
             renderMenus();
+
+            // Add click handlers for item selection
+            itemCards.forEach(card => {
+                // Add click handlers to all categories (Equipment, Pistols, Mid-Tier, Rifles, Grenades)
+                const category = card.closest('.category');
+                const categoryIndex = Array.from(category.parentNode.children).indexOf(category);
+
+                // Add click handlers to all categories (0=Equipment, 1=Pistols, 2=Mid-Tier, 3=Rifles, 4=Grenades)
+                if (categoryIndex >= 0 && categoryIndex <= 4) {
+                    card.addEventListener('click', (e) => {
+                        // Don't trigger if clicking on dropdown button or menu
+                        if (e.target.closest('.dropdown__button') || e.target.closest('.dropdown__menu')) {
+                            return;
+                        }
+
+                        handleWeaponSelection(card);
+                    });
+                }
+            });
         })();
 
 
