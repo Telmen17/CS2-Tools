@@ -102,9 +102,6 @@
                 left: 10px !important;
                 right: 10px !important;
                 width: auto !important;
-                margin: 0 !important;
-                padding-top: 0 !important;
-                top: auto !important;
             }
 
             .dropdown__item {
@@ -1195,30 +1192,30 @@
             }
 
             function positionMenu(dropdown, menu) {
-                const card = dropdown.closest('.item-card');
-                const rect = card.getBoundingClientRect();
                 const btn = dropdown.querySelector('.dropdown__button');
-                const bRect = btn.getBoundingClientRect();
+                const btnRect = btn.getBoundingClientRect();
 
                 // Check if we're on mobile
                 const isMobile = window.innerWidth <= 768;
 
                 if (isMobile) {
-                    // Mobile positioning - full width with margins, positioned directly below button
+                    // Mobile: minimal JavaScript intervention, let CSS handle most styling
+                    menu.style.position = 'fixed';
                     menu.style.left = '10px';
                     menu.style.right = '10px';
+                    menu.style.top = `${btnRect.bottom + window.scrollY + 2}px`;
                     menu.style.width = 'auto';
-                    menu.style.top = `${bRect.bottom + window.scrollY}px`; // Remove extra 4px margin
-                    menu.style.marginTop = '0'; // Ensure no margin
-                    menu.style.paddingTop = '0'; // Ensure no padding
+                    menu.style.zIndex = '100000';
                 } else {
-                    // Desktop positioning
-                    menu.style.left = `${rect.left + window.scrollX}px`;
-                    menu.style.top = `${bRect.bottom + window.scrollY + 4}px`;
-                    menu.style.width = `${rect.width}px`;
+                    // Desktop: positioned relative to the card
+                    const card = dropdown.closest('.item-card');
+                    const cardRect = card.getBoundingClientRect();
+                    menu.style.position = 'fixed';
+                    menu.style.left = `${cardRect.left + window.scrollX}px`;
+                    menu.style.top = `${btnRect.bottom + window.scrollY + 4}px`;
+                    menu.style.width = `${cardRect.width}px`;
                     menu.style.right = 'auto';
-                    menu.style.marginTop = '0';
-                    menu.style.paddingTop = '0';
+                    menu.style.zIndex = '100000';
                 }
             }
 
@@ -1226,7 +1223,7 @@
                 if (!open) return;
                 const { dropdown, menu, owner } = open;
 
-                // Remove open classes
+                // Remove open classes - this will trigger CSS transitions
                 menu.classList.remove('is-open');
                 dropdown.classList.remove('is-open');
 
