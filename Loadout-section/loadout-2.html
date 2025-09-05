@@ -99,9 +99,6 @@
 
             .dropdown__menu {
                 max-width: calc(100vw - 20px);
-                left: 10px !important;
-                right: 10px !important;
-                width: auto !important;
             }
 
             .dropdown__item {
@@ -184,6 +181,11 @@
                 min-height: 44px;
                 display: flex;
                 align-items: center;
+            }
+
+            .dropdown__menu {
+                width: auto; /* JS sets exact width */
+                max-width: calc(100vw - 20px);
             }
         }
 
@@ -364,7 +366,7 @@
 
         /* --- Menu --- */
         .dropdown__menu {
-            position: fixed;          /* we'll position via JS */
+            position: fixed;          /* Back to fixed for proper positioning */
             left: 0; top: 0;          /* placeholder; JS sets real coords */
             width: auto;              /* JS sets exact width */
             background: #1a2336;
@@ -372,7 +374,7 @@
             border: 1px solid #4fc3f7;
             border-radius: 8px;
             padding: 4px 0;
-            margin: 0;                /* Ensure no margin */
+            margin: 0;
             box-shadow: 0 4px 12px rgba(0,0,0,.3);
 
             opacity: 0;
@@ -381,7 +383,7 @@
             pointer-events: none;
             transition: opacity .2s ease, transform .2s ease, visibility 0s linear .2s;
 
-            z-index: 100000;          /* above everything */
+            z-index: 999999;          /* Very high to override WordPress */
         }
 
         /* visible state toggled on the menu itself */
@@ -472,7 +474,8 @@
 
 </head>
 <body>
-<div class="my-planner">
+<!-- WordPress Compatible CS2 Loadout Planner -->
+<div class="my-planner" id="cs2-loadout-planner">
     <h1>CS2 Buy Menu Planner</h1>
 
     <div class="planner">
@@ -915,8 +918,9 @@
         }
 
 
-        (() => {
-            const DROPS = [...document.querySelectorAll('.dropdown')];
+        // WordPress Compatible Initialization
+        function initCS2LoadoutPlanner() {
+            const DROPS = [...document.querySelectorAll('#cs2-loadout-planner .dropdown')];
             let open = null;
             const scrim = document.createElement('div');
             Object.assign(scrim.style, {
@@ -1139,8 +1143,8 @@
                 renderMenus();
 
                 // Update totals
-                updateTotalAndHighlight();
-            }
+            updateTotalAndHighlight();
+        }
 
             // ---- Menu rendering ----
             function renderMenus() {
@@ -1194,38 +1198,62 @@
             function positionMenu(dropdown, menu) {
                 const btn = dropdown.querySelector('.dropdown__button');
                 const btnRect = btn.getBoundingClientRect();
+                const card = dropdown.closest('.item-card');
+                const cardRect = card.getBoundingClientRect();
 
-                // Check if we're on mobile
-                const isMobile = window.innerWidth <= 768;
+                const vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+                const vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
-                if (isMobile) {
-                    // Mobile: minimal JavaScript intervention, let CSS handle most styling
-                    menu.style.position = 'fixed';
-                    menu.style.left = '10px';
-                    menu.style.right = '10px';
-                    menu.style.top = `${btnRect.bottom + window.scrollY + 2}px`;
-                    menu.style.width = 'auto';
-                    menu.style.zIndex = '100000';
-                } else {
-                    // Desktop: positioned relative to the card
-                    const card = dropdown.closest('.item-card');
-                    const cardRect = card.getBoundingClientRect();
-                    menu.style.position = 'fixed';
-                    menu.style.left = `${cardRect.left + window.scrollX}px`;
-                    menu.style.top = `${btnRect.bottom + window.scrollY + 4}px`;
-                    menu.style.width = `${cardRect.width}px`;
-                    menu.style.right = 'auto';
-                    menu.style.zIndex = '100000';
+                // Ensure visible and above scrim
+                menu.style.position = 'fixed';
+                menu.style.zIndex = '1000000';
+                menu.style.margin = '0';
+                menu.style.padding = '4px 0';
+                menu.style.background = '#1a2336';
+                menu.style.border = '1px solid #4fc3f7';
+                menu.style.borderRadius = '8px';
+                menu.style.boxShadow = '0 4px 12px rgba(0,0,0,.3)';
+                menu.style.opacity = '1';
+                menu.style.visibility = 'visible';
+                menu.style.transform = 'none';
+                menu.style.pointerEvents = 'auto';
+                menu.style.right = 'auto'; // always reset
+
+                // Desired width: match the card, but don’t exceed viewport - 20px
+                const desiredWidth = Math.min(cardRect.width, vw - 20);
+                menu.style.width = desiredWidth + 'px';
+
+                // Horizontal: align with card left, clamped to viewport
+                let left = Math.min(Math.max(10, cardRect.left), vw - desiredWidth - 10);
+                menu.style.left = left + 'px';
+
+                // Vertical: try opening below; if not enough space, open upward
+                const gap = 4;
+                menu.style.maxHeight = (vh - 20) + 'px'; // allow scrolling inside if tall
+                // scrollHeight works while visible; no need to add scrollY for fixed
+                const menuHeight = menu.scrollHeight;
+                let top = btnRect.bottom + gap;
+                if (top + menuHeight > vh - 10) {
+                    top = Math.max(10, btnRect.top - menuHeight - gap);
                 }
+                menu.style.top = top + 'px';
             }
+
+
 
             function closeOpen() {
                 if (!open) return;
-                const { dropdown, menu, owner } = open;
+                const { dropdown, menu, owner, posFn } = open;
 
-                // Remove open classes - this will trigger CSS transitions
+                // Remove open classes
                 menu.classList.remove('is-open');
                 dropdown.classList.remove('is-open');
+
+                // Reset menu styles to hidden state
+                menu.style.opacity = '0';
+                menu.style.visibility = 'hidden';
+                menu.style.transform = 'translateY(-8px)';
+                menu.style.pointerEvents = 'none';
 
                 // Move menu back to its original position
                 owner.appendChild(menu);
@@ -1234,8 +1262,8 @@
                 scrim.style.display = 'none';
 
                 // Remove event listeners
-                window.removeEventListener('scroll', open.posFn, true);
-                window.removeEventListener('resize', open.posFn, true);
+                window.removeEventListener('scroll', posFn, true);
+                window.removeEventListener('resize', posFn, true);
 
                 // Reset the open state
                 open = null;
@@ -1253,6 +1281,7 @@
                     if (open && open.dropdown !== dropdown) closeOpen();
                     if (open && open.dropdown === dropdown) { closeOpen(); return; }
 
+                    // Move menu to body for proper positioning
                     const owner = dropdown;
                     document.body.appendChild(menu);
                     const posFn = () => positionMenu(dropdown, menu);
@@ -1296,7 +1325,19 @@
                     });
                 }
             });
-        })();
+        }
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initCS2LoadoutPlanner);
+        } else {
+            initCS2LoadoutPlanner();
+        }
+
+        // WordPress compatibility
+        if (typeof jQuery !== 'undefined') {
+            jQuery(document).ready(initCS2LoadoutPlanner);
+        }
 
 
 
